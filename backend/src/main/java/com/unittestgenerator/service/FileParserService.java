@@ -22,8 +22,7 @@ public class FileParserService {
     public FileUploadResponse parseFile(MultipartFile file) {
         try {
             String sourceCode = new BufferedReader(new InputStreamReader(file.getInputStream()))
-                    .lines().collect(Collectors.joining("
-"));
+                    .lines().collect(Collectors.joining("\n"));
 
             Optional<CompilationUnit> parseResult = javaParser.parse(sourceCode).getResult();
 

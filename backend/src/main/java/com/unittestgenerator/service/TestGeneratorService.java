@@ -47,37 +47,22 @@ public class TestGeneratorService {
             StringBuilder testCode = new StringBuilder();
 
             // Generate imports
-            testCode.append("import org.junit.jupiter.api.Test;
-");
-            testCode.append("import org.junit.jupiter.api.BeforeEach;
-");
-            testCode.append("import org.junit.jupiter.api.DisplayName;
-");
-            testCode.append("import static org.junit.jupiter.api.Assertions.*;
-");
-            testCode.append("import static org.mockito.Mockito.*;
-
-");
+            testCode.append("import org.junit.jupiter.api.Test;\n");
+            testCode.append("import org.junit.jupiter.api.BeforeEach;\n");
+            testCode.append("import org.junit.jupiter.api.DisplayName;\n");
+            testCode.append("import static org.junit.jupiter.api.Assertions.*;\n");
+            testCode.append("import static org.mockito.Mockito.*;\n\n");
 
             // Generate class declaration
-            testCode.append("public class ").append(testClassName).append(" {
-
-");
+            testCode.append("public class ").append(testClassName).append(" {\n\n");
             testCode.append("    private ").append(className).append(" ")
-                     .append(lowerFirst(className)).append(";
+                     .append(lowerFirst(className)).append(";\n\n");
 
-");
-
-            testCode.append("    @BeforeEach
-");
-            testCode.append("    void setUp() {
-");
+            testCode.append("    @BeforeEach\n");
+            testCode.append("    void setUp() {\n");
             testCode.append("        ").append(lowerFirst(className))
-                     .append(" = new ").append(className).append("();
-");
-            testCode.append("    }
-
-");
+                     .append(" = new ").append(className).append("();\n");
+            testCode.append("    }\n\n");
 
             int testCount = 0;
             for (MethodDeclaration method : methods) {
@@ -91,17 +76,11 @@ public class TestGeneratorService {
                 // Normal test
                 testCount++;
                 String testMethodName = methodName + "_ShouldReturnExpectedResult";
-                testCode.append("    @Test
-");
-                testCode.append("    @DisplayName("").append(methodName)
-                         .append(" should return expected result")
-");
-                testCode.append("    void ").append(testMethodName).append("() {
-");
+                testCode.append("    @Test\n");
+                testCode.append("    @DisplayName(\"").append(methodName).append(" should return expected result\")\n");
+                testCode.append("    void ").append(testMethodName).append("() {\n");
                 testCode.append(generateMethodCall(className, methodName, params, isVoid, returnType.toString()));
-                testCode.append("    }
-
-");
+                testCode.append("    }\n\n");
 
                 testCaseInfos.add(TestCaseInfo.builder()
                         .methodName(testMethodName)
@@ -114,19 +93,12 @@ public class TestGeneratorService {
                 if (request.isIncludeEdgeCases()) {
                     testCount++;
                     String edgeTestName = methodName + "_ShouldHandleEdgeCases";
-                    testCode.append("    @Test
-");
-                    testCode.append("    @DisplayName("").append(methodName)
-                             .append(" should handle edge cases")
-");
-                    testCode.append("    void ").append(edgeTestName).append("() {
-");
-                    testCode.append("        // Edge case: empty/null inputs
-");
+                    testCode.append("    @Test\n");
+                    testCode.append("    @DisplayName(\"").append(methodName).append(" should handle edge cases\")\n");
+                    testCode.append("    void ").append(edgeTestName).append("() {\n");
+                    testCode.append("        // Edge case: empty/null inputs\n");
                     testCode.append(generateEdgeCaseMethodCall(className, methodName, params, isVoid));
-                    testCode.append("    }
-
-");
+                    testCode.append("    }\n\n");
 
                     testCaseInfos.add(TestCaseInfo.builder()
                             .methodName(edgeTestName)
@@ -140,17 +112,11 @@ public class TestGeneratorService {
                 if (request.isIncludeNegativeTests()) {
                     testCount++;
                     String negTestName = methodName + "_ShouldThrowExceptionForInvalidInput";
-                    testCode.append("    @Test
-");
-                    testCode.append("    @DisplayName("").append(methodName)
-                             .append(" should throw exception for invalid input")
-");
-                    testCode.append("    void ").append(negTestName).append("() {
-");
+                    testCode.append("    @Test\n");
+                    testCode.append("    @DisplayName(\"").append(methodName).append(" should throw exception for invalid input\")\n");
+                    testCode.append("    void ").append(negTestName).append("() {\n");
                     testCode.append(generateNegativeTest(className, methodName, params));
-                    testCode.append("    }
-
-");
+                    testCode.append("    }\n\n");
 
                     testCaseInfos.add(TestCaseInfo.builder()
                             .methodName(negTestName)
@@ -161,8 +127,7 @@ public class TestGeneratorService {
                 }
             }
 
-            testCode.append("}
-");
+            testCode.append("}\n");
 
             return TestGenerationResponse.builder()
                     .className(className)
@@ -198,25 +163,19 @@ public class TestGeneratorService {
         if (isVoid) {
             sb.append("        assertDoesNotThrow(() -> ")
               .append(instance).append(".").append(methodName)
-              .append("(").append(args).append("));
-");
+              .append("(").append(args).append("));\n");
         } else {
             sb.append("        var result = ").append(instance).append(".")
-              .append(methodName).append("(").append(args).append(");
-");
-            sb.append("        assertNotNull(result);
-");
+              .append(methodName).append("(").append(args).append(");\n");
+            sb.append("        assertNotNull(result);\n");
             if (returnType.equals("boolean") || returnType.equals("Boolean")) {
-                sb.append("        // assertTrue(result); // TODO: Update expected value
-");
+                sb.append("        // assertTrue(result); // TODO: Update expected value\n");
             } else if (returnType.equals("int") || returnType.equals("Integer") ||
                        returnType.equals("long") || returnType.equals("Long") ||
                        returnType.equals("double") || returnType.equals("Double")) {
-                sb.append("        // assertEquals(expectedValue, result); // TODO: Update expected value
-");
+                sb.append("        // assertEquals(expectedValue, result); // TODO: Update expected value\n");
             } else if (returnType.equals("String")) {
-                sb.append("        // assertEquals("expected", result); // TODO: Update expected value
-");
+                sb.append("        // assertEquals(\"expected\", result); // TODO: Update expected value\n");
             }
         }
         return sb.toString();
@@ -237,14 +196,11 @@ public class TestGeneratorService {
         if (isVoid) {
             sb.append("        assertDoesNotThrow(() -> ")
               .append(instance).append(".").append(methodName)
-              .append("(").append(args).append("));
-");
+              .append("(").append(args).append("));\n");
         } else {
             sb.append("        var result = ").append(instance).append(".")
-              .append(methodName).append("(").append(args).append(");
-");
-            sb.append("        assertNotNull(result);
-");
+              .append(methodName).append("(").append(args).append(");\n");
+            sb.append("        assertNotNull(result);\n");
         }
         return sb.toString();
     }
@@ -253,8 +209,7 @@ public class TestGeneratorService {
         StringBuilder sb = new StringBuilder();
         String instance = lowerFirst(className);
 
-        sb.append("        assertThrows(Exception.class, () -> {
-");
+        sb.append("        assertThrows(Exception.class, () -> {\n");
         sb.append("            ").append(instance).append(".")
           .append(methodName).append("(");
 
@@ -263,10 +218,8 @@ public class TestGeneratorService {
             if (i < params.size() - 1) sb.append(", ");
         }
 
-        sb.append(");
-");
-        sb.append("        });
-");
+        sb.append(");\n");
+        sb.append("        });\n");
         return sb.toString();
     }
 
@@ -277,7 +230,7 @@ public class TestGeneratorService {
             case "double", "Double" -> "0.0";
             case "float", "Float" -> "0.0f";
             case "boolean", "Boolean" -> "true";
-            case "String" -> ""test"";
+            case "String" -> "\"test\"";
             case "char", "Character" -> "'a'";
             default -> "null";
         };
@@ -290,7 +243,7 @@ public class TestGeneratorService {
             case "double", "Double" -> "Double.MAX_VALUE";
             case "float", "Float" -> "Float.MAX_VALUE";
             case "boolean", "Boolean" -> "false";
-            case "String" -> """";
+            case "String" -> "\"\"";
             case "char", "Character" -> "'\0'";
             default -> "null";
         };
