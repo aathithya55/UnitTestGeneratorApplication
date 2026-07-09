@@ -92,4 +92,4 @@ unit-test-generator/
 
 ## 👨‍💻 Authors
 
-- Your Name - College Project 2024
+- Aathithya S - College Project 2024
